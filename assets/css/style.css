@@ -519,110 +519,42 @@ body {
 
 
 /*-----------------------------------*\
-  #FEATURE
+  #CONTACT
 \*-----------------------------------*/
 
-.features-list > li:first-child { margin-block-end: 30px; }
-
-.features-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-}
-
-.features-card .icon {
-  background-image: var(--gradient-1);
-  background-size: 200%;
-  color: var(--white);
-  min-width: max-content;
-  max-width: max-content;
-  font-size: 36px;
-  padding: 22px;
-  border-radius: 50%;
-}
-
-.features-card .icon ion-icon { --ionicon-stroke-width: 20px; }
-
-.features-card .title { margin-block-end: 10px; }
-
-.features-banner { margin-block: 40px; }
-
-.features-banner > img {
-  max-width: max-content;
-  margin-inline: auto;
-}
-
-
-
-
-
-/*-----------------------------------*\
-  #BLOG
-\*-----------------------------------*/
-
-.blog { padding-block-end: 120px; }
-
-.blog-list {
+.contact-grid {
   display: grid;
+  grid-template-columns: 1fr;
   gap: 30px;
 }
 
-.blog-card {
-  padding: 20px;
+.contact-card {
+  padding: 30px;
+  text-align: center;
+  border-radius: var(--radius-12);
   box-shadow: var(--shadow);
-  border-radius: var(--radius-12);
+  background: var(--white);
 }
 
-.blog-card .banner {
-  border-radius: var(--radius-12);
-  overflow: hidden;
-  margin-block-end: 15px;
-}
-
-.blog-card .banner img { transition: var(--transition-2); }
-
-.blog-card .banner a:is(:hover, :focus) img { transform: scale(1.1); }
-
-.blog-card .title {
+.contact-name {
   color: var(--st-patricks-blue);
-  font-size: var(--fs-6);
-  line-height: 1.2;
-  margin-block-end: 15px;
+  font-size: var(--fs-5);
+  font-weight: var(--fw-700);
+  margin-bottom: 10px;
 }
 
-.blog-card .title > a { color: inherit; }
-
-.blog-card .title > a:is(:hover, :focus) { color: var(--razzmatazz); }
-
-.blog-card .text { margin-block-end: 15px; }
-
-.blog-card .meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 15px;
-  font-size: var(--fs-8);
-  color: var(--purple-navy);
-  font-weight: var(--fw-500);
-  padding-block-end: 10px;
+.contact-role {
+  margin-bottom: 15px;
 }
 
-.blog-card .meta ion-icon {
-  color: var(--winter-sky);
-  font-size: 22px;
-  --ionicon-stroke-width: 35px;
+.contact-phone {
+  display: inline-block;
+  color: var(--st-patricks-blue);
+  font-weight: var(--fw-600);
 }
 
-.publish-date,
-.comment {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.comment {
-  color: inherit;
-  margin-inline-start: auto;
+.contact-phone:hover {
+  text-decoration: underline;
 }
 
 
@@ -803,20 +735,6 @@ h2.section-title {
   display: table;
   margin: 0 auto 60px auto;
   text-align: center;
-}
-
-#contact .service-card,
-section[id="Contact Us"] .service-card {
-  max-width: 915px;
-  margin: 0 auto;
-}
-
-/* CONTACT SECTION - 2 COLUMNS */
-#contact .container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 30px;
-  align-items: stretch;
 }
 
 /*-----------------------------------*\
