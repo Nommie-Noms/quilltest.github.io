@@ -1047,7 +1047,19 @@ section[id="Contact Us"] .service-card {
   }
 }
 
+.service-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
 
+.service-list > li {
+  display: flex;
+}
+
+.service-list > li .service-card {
+  flex: 1;
+}
 
   /**
    * FEATURES
