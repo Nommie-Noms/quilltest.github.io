@@ -794,6 +794,12 @@ body {
     margin-bottom: 20px;
 }
 
+h2.section-title {
+  display: table;
+  margin: 0 auto 60px auto;
+  text-align: center;
+}
+
 /*-----------------------------------*\
   #MEDIA QUERIES
 \*-----------------------------------*/
