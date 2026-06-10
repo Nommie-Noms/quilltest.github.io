@@ -410,7 +410,9 @@ body {
 
 .about-banner { margin-block-end: 30px; }
 
-.about .section-title { margin-inline: 0; }
+.about .section-title {
+  margin-inline: auto;
+}
 
 .about .underline::before {
   left: 0;
