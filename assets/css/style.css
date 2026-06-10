@@ -802,6 +802,12 @@ h2.section-title {
   text-align: center;
 }
 
+#contact .service-card,
+section[id="Contact Us"] .service-card {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
 /*-----------------------------------*\
   #MEDIA QUERIES
 \*-----------------------------------*/
