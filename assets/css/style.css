@@ -386,6 +386,7 @@ body {
   font-family: var(--ff-source-sans-pro);
   font-size: var(--fs-7);
   margin-block-end: 15px;
+  text-align:center;
 }
 
 .hero-title {
@@ -807,6 +808,14 @@ h2.section-title {
 section[id="Contact Us"] .service-card {
   max-width: 915px;
   margin: 0 auto;
+}
+
+/* CONTACT SECTION - 2 COLUMNS */
+#contact .container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+  align-items: stretch;
 }
 
 /*-----------------------------------*\
