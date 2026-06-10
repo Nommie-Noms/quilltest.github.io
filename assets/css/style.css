@@ -998,22 +998,29 @@ body {
 }
 
 /* ===== Toast Notification ===== */
-.toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    
-    background: #fff;
-    color: #111;
-    border: 1px solid #111;
+#toast {
+  visibility: hidden;
+  min-width: 200px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 12px;
 
-    padding: 10px 20px;
-    font-size: 0.9rem;
+  position: fixed;      /* Important */
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
 
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s ease;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.5s, bottom 0.5s;
+}
+
+#toast.show {
+  visibility: visible;
+  opacity: 1;
+  bottom: 50px;
 }
 
   /**
