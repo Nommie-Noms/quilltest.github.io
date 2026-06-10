@@ -1119,6 +1119,12 @@ section[id="Contact Us"] .service-card {
 
   .hero { min-height: 800px; }
 
+  @media (max-width: 768px) {
+  .hero {
+    background-size: 60% auto, cover, auto;
+    background-position: bottom center, center, center;
+  }
+}
 
 
   /**
