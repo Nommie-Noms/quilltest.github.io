@@ -424,6 +424,7 @@ body {
 .about-text {
   font-size: var(--fs-8);
   margin-block-end: 20px;
+  text-align: center;
 }
 
 .stats-list {
