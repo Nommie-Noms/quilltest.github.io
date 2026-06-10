@@ -981,7 +981,40 @@ body {
     place-items: center;
   }
 
+/* Clickable phone numbers */
+.phone {
+  color: #000;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  display: inline-block;
+  transition: color 0.2s ease;
+}
 
+.phone:hover,
+.phone:focus {
+  color: #5e6f99;
+  text-decoration: underline;
+}
+
+/* ===== Toast Notification ===== */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    
+    background: #fff;
+    color: #111;
+    border: 1px solid #111;
+
+    padding: 10px 20px;
+    font-size: 0.9rem;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
 
   /**
    * FOOTER
