@@ -464,7 +464,6 @@ body {
 }
 
 .service-card .card-icon {
-  background-image: url("../images/service-banner-pattern.png");
   background-repeat: no-repeat;
   background-size: contain;
   background-color: hsla(335, 87%, 53%, 0.12);
