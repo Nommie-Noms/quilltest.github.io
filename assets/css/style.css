@@ -749,7 +749,7 @@ body {
 
 /* Clickable phone numbers */
 .phone {
-  color: #000;
+  color: inherit;
   font-weight: 600;
   cursor: pointer;
   margin-top: 0.5rem;
