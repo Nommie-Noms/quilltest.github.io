@@ -1034,7 +1034,12 @@ h2.section-title {
    * SERVICE
    */
 
-  .service-list { grid-template-columns: repeat(3, 1fr); }
+  .service-list {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    align-items: stretch;
+  }
+}
 
 
 
