@@ -998,29 +998,29 @@ body {
 }
 
 /* ===== Toast Notification ===== */
-#toast {
+.toast {
   visibility: hidden;
   min-width: 200px;
-  background-color: #333;
+  background: #333;
   color: #fff;
   text-align: center;
   border-radius: 6px;
   padding: 12px;
 
-  position: fixed;      /* Important */
-  bottom: 30px;
+  position: fixed;
   left: 50%;
+  bottom: 30px;
   transform: translateX(-50%);
 
-  z-index: 10000;
+  z-index: 9999;
+
   opacity: 0;
-  transition: opacity 0.5s, bottom 0.5s;
+  transition: opacity 0.3s ease;
 }
 
-#toast.show {
+.toast.show {
   visibility: visible;
   opacity: 1;
-  bottom: 50px;
 }
 
   /**
