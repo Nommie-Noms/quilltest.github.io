@@ -226,7 +226,29 @@ body {
   object-fit: cover;
 }
 
+.service-card {
+  text-align: center;
+}
 
+.service-card .title,
+.service-card .text,
+.service-card .phone {
+  text-align: center;
+}
+
+.profile-pic {
+  display: block;
+  margin: 0 auto 15px auto;
+  width: 120px; /* adjust as desired */
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.phone {
+  display: inline-block;
+  margin: 10px auto 0 auto;
+}
 
 
 
