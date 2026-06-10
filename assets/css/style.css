@@ -398,6 +398,7 @@ body {
   color: var(--white);
   font-size: var(--fs-8);
   margin-block-end: 30px;
+  text-align:right;
 }
 
 
