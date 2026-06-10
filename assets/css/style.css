@@ -470,7 +470,7 @@ body {
   background-image: url("../images/service-banner-pattern.png");
   background-repeat: no-repeat;
   background-size: contain;
-  background-color: hsla(335, 87%, 53%, 0.12);
+  background-color: hsl(0deg 0% 100% / 12%);
   aspect-ratio: 1 / 1;
   max-width: 100px;
   min-width: 70px;
