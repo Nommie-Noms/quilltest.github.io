@@ -785,6 +785,15 @@ body {
   opacity: 1;
 }
 
+.profile-pic {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%; /* 👈 makes it circular */
+    object-fit: cover;  /* 👈 prevents stretching */
+    border: 2px solid #111; /* 👈 matches your design */
+    margin-bottom: 20px;
+}
+
 /*-----------------------------------*\
   #MEDIA QUERIES
 \*-----------------------------------*/
