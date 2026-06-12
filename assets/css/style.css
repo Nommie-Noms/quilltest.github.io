@@ -516,8 +516,62 @@ body {
 }
 
 
+/* ===== Testimonials ===== */
 
+.testimonial-slider {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  padding: 20px 0;
+}
 
+.testimonial-track {
+  display: flex;
+  gap: 30px;
+  width: max-content;
+  animation: scrollTestimonials 25s linear infinite;
+}
+
+.testimonial-card {
+  width: 320px;
+  min-height: 180px;
+
+  padding: 25px;
+  border-radius: var(--radius-12);
+  box-shadow: var(--shadow);
+
+  background: white;
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.testimonial-card h4 {
+  margin-top: 15px;
+  color: var(--st-patricks-blue);
+}
+
+@keyframes scrollTestimonials {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.testimonial-track:hover {
+  animation-play-state: paused;
+}
+
+.stars {
+  color: #FFD700; /* Gold */
+  font-size: 2rem;
+  margin-bottom: 15px;
+  letter-spacing: 2px;
+}
 
 /*-----------------------------------*\
   #CONTACT
