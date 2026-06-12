@@ -587,10 +587,6 @@ body {
   }
 }
 
-.testimonial-track:hover {
-  animation-play-state: paused;
-}
-
 .stars {
   color: #FFD700; /* Gold */
   font-size: 2rem;
