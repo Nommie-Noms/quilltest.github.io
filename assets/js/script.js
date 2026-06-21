@@ -103,5 +103,5 @@ setInterval(() => {
   }
 
   testimonials[currentTestimonial].classList.add("active");
-}, 3000);
+}, 4000);
 });
