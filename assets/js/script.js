@@ -90,4 +90,18 @@ window.addEventListener("scroll", function () {
     header.classList.remove("active");
     goTopBtn.classList.remove("active");
   }
+
+const testimonials = document.querySelectorAll(".testimonial-card");
+let currentTestimonial = 0;
+
+setInterval(() => {
+  testimonials[currentTestimonial].classList.remove("active");
+
+  currentTestimonial++;
+  if (currentTestimonial >= testimonials.length) {
+    currentTestimonial = 0;
+  }
+
+  testimonials[currentTestimonial].classList.add("active");
+}, 3000);
 });
