@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quill & Ink — Connection Test</title>
+<style>body{margin:0;background:#f3f1f8;color:#26203a;font:16px/1.6 system-ui,sans-serif}main{max-width:700px;margin:32px auto;padding:24px}h1{line-height:1.2}label{display:block;margin:18px 0}input{display:block;box-sizing:border-box;width:100%;padding:12px;font:inherit;border:1px solid #aaa;border-radius:8px}button{padding:12px 20px;font:inherit;background:#542775;color:white;border:0;border-radius:8px;margin:8px 0;cursor:pointer}button:disabled{opacity:.5}section{background:white;padding:22px;border-radius:14px;margin:20px 0}li{margin:12px 0;overflow-wrap:anywhere}.note{font-size:14px;color:#625975}a{color:#542775}</style></head>
+<body><main><a href="index.html">Back to test bench</a><h1>Client portal connection test</h1><p>Check this page in your normal browser, then in your GTA in-game phone.</p><section><h2>Browser checks</h2><ul id="browser-results"><li>JavaScript has not run.</li></ul><noscript>This browser must enable JavaScript for the portal.</noscript><button id="reload" type="button">Reload to check persistence</button></section>
+<section><h2>Supabase connection</h2><p class="note">Use your test project's URL and publishable key (or legacy anon key). Do not enter a secret key, service-role key, or database password. These inputs are not saved.</p><form id="connection-form"><label>Project URL<input id="url" type="url" placeholder="https://your-project.supabase.co" required></label><label>Publishable key<input id="key" type="password" autocomplete="off" required></label><button id="run" type="submit">Test connection</button></form><p id="connection-result" role="status" aria-live="polite">Not tested yet.</p></section><p class="note">This test reads public authentication settings. It does not create accounts or change your database. Successful storage checks do not prove that login works; we will test a real account next.</p></main>
+<script>
+(function () {
+  var list = document.getElementById('browser-results');
+  list.textContent = '';
+  function add(text) { var item = document.createElement('li'); item.textContent = text; list.appendChild(item); }
+  add('PASS: JavaScript is running.');
+  add(location.protocol === 'https:' ? 'PASS: This page uses HTTPS.' : 'CHECK: Open this page over HTTPS on your test website.');
+  add(typeof window.fetch === 'function' ? 'PASS: Browser supports fetch requests.' : 'FAIL: Browser does not support fetch requests.');
+  var storageKey = 'quill-test-storage-v1';
+  try {
+    var previous = localStorage.getItem(storageKey);
+    localStorage.setItem(storageKey, 'ok');
+    if (localStorage.getItem(storageKey) !== 'ok') throw new Error('Storage unavailable');
+    add(previous === 'ok' ? 'PASS: Local storage survived a previous visit or reload.' : 'PASS: Local storage can be written. Press Reload to check persistence.');
+  } catch (error) { add('FAIL: Local storage is blocked. Persistent login will need further investigation.'); }
+  document.getElementById('reload').onclick = function () { location.reload(); };
+  document.getElementById('connection-form').onsubmit = function (event) {
+    event.preventDefault();
+    var output = document.getElementById('connection-result');
+    var button = document.getElementById('run');
+    var url = document.getElementById('url').value.trim().replace(/\/+$/, '');
+    var key = document.getElementById('key').value.trim();
+    if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url)) { output.textContent = 'Use the HTTPS project URL from your Supabase dashboard, without a path.'; return; }
+    var allowed = /^sb_publishable_/.test(key);
+    if (!allowed) {
+      try { var payload = key.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'); allowed = JSON.parse(atob(payload)).role === 'anon'; } catch (error) { allowed = false; }
+    }
+    if (!allowed) { output.textContent = 'Use only a publishable key or legacy anon key. This page rejects secret/service-role keys.'; return; }
+    if (typeof window.fetch !== 'function') { output.textContent = 'This browser cannot run the connection test.'; return; }
+    button.disabled = true; output.textContent = 'Connecting…';
+    var finished = false;
+    var timer = setTimeout(function () { finished = true; button.disabled = false; output.textContent = 'Timed out. Check the connection and whether the in-game phone allows requests to Supabase.'; }, 15000);
+    fetch(url + '/auth/v1/settings', {headers:{apikey:key}, credentials:'omit', cache:'no-store'})
+      .then(function (response) { if (!response.ok) throw new Error('HTTP ' + response.status + ': check your project URL, key, and project status.'); return response.json(); })
+      .then(function () { if (!finished) output.textContent = 'PASS: This browser reached Supabase and read its authentication settings. Next: test account login and logout.'; })
+      .catch(function (error) { if (!finished) output.textContent = 'FAIL: ' + error.message + ' If it works in your normal browser only, the in-game browser may block external requests.'; })
+      .then(function () { clearTimeout(timer); button.disabled = false; finished = true; });
+  };
+}());
+</script></body></html>
