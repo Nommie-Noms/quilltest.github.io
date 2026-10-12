@@ -61,6 +61,56 @@ function fallbackCopy(number) {
   document.body.removeChild(textarea);
 }
 
+function toggleDuties(dutiesId, button) {
+  const duties = document.getElementById(dutiesId);
+
+  if (!duties) {
+    console.error("Services section not found:", dutiesId);
+    return;
+  }
+
+  if (duties.hidden) {
+    duties.hidden = false;
+    button.textContent = "Hide Services";
+  } else {
+    duties.hidden = true;
+    button.textContent = "Services";
+  }
+}
+
+function openMap() {
+  const mapOverlay = document.getElementById("mapOverlay");
+
+  if (!mapOverlay) return;
+
+  mapOverlay.classList.add("active");
+
+  document.body.style.overflow = "hidden";
+}
+
+
+function closeMap() {
+  const mapOverlay = document.getElementById("mapOverlay");
+
+  if (!mapOverlay) return;
+
+  mapOverlay.classList.remove("active");
+
+  document.body.style.overflow = "";
+}
+
+const mapOverlay = document.getElementById("mapOverlay");
+
+if (mapOverlay) {
+  mapOverlay.addEventListener("click", function(event) {
+
+    if (event.target === mapOverlay) {
+      closeMap();
+    }
+
+  });
+}
+
 function showToast(message) {
   const toast = document.getElementById("toast");
   toast.textContent = message;
@@ -72,7 +122,38 @@ function showToast(message) {
   }, 2000); // disappears after 2 seconds
 }
 
+const alertBtn = document.getElementById("alertBtn");
+const alertPopup = document.getElementById("alertPopup");
+const alertClose = document.getElementById("alertClose");
 
+if (alertBtn && alertPopup) {
+
+  // Open / close when clicking the bell
+  alertBtn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    alertPopup.classList.toggle("active");
+  });
+
+  // Prevent clicks inside the popup from closing it
+  alertPopup.addEventListener("click", (event) => {
+    event.stopPropagation();
+  });
+
+  // Close when clicking anywhere outside
+  document.addEventListener("click", () => {
+    alertPopup.classList.remove("active");
+  });
+
+}
+
+function forceReload() {
+  const url = new URL(window.location.href);
+
+  // Add a unique timestamp to bypass page cache
+  url.searchParams.set("_refresh", Date.now());
+
+  window.location.href = url.toString();
+}
 
 /**
  * header & go-top-btn active
@@ -90,18 +171,4 @@ window.addEventListener("scroll", function () {
     header.classList.remove("active");
     goTopBtn.classList.remove("active");
   }
-
-const testimonials = document.querySelectorAll(".testimonial-card");
-let currentTestimonial = 0;
-
-setInterval(() => {
-  testimonials[currentTestimonial].classList.remove("active");
-
-  currentTestimonial++;
-  if (currentTestimonial >= testimonials.length) {
-    currentTestimonial = 0;
-  }
-
-  testimonials[currentTestimonial].classList.add("active");
-}, 4000);
 });
