@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quill & Ink Services</title>
+
+  <!-- 
+    - favicon
+  -->
+  <link rel="shortcut icon" href="assets/images/Favicon-3.png" type="image/png">
+
+  <!-- 
+    - custom css link
+  -->
+  <link rel="stylesheet" href="./assets/css/style.css?v=5">
+
+  <!-- 
+    - google font link
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Source+Sans+Pro:wght@600;700&display=swap"
+    rel="stylesheet">
+</head>
+
+<body id="top">
+
+  <!-- 
+    - #HEADER
+  -->
+
+  <header class="header" data-header>
+    <div class="container">
+
+      <div class="overlay" data-overlay></div>
+
+      <a href="" onclick="location.reload(); return false;" class="logo-link">
+        <img src="assets/images/QUILL_INK_MINI_WHITE.png"
+        alt="Quill & Ink" class="logo-img logo-light">
+      </a>
+
+      <nav class="navbar" data-navbar>
+
+        <div class="navbar-top">
+          <a href="#" class="logo">Quill & Ink</a>
+
+          <button class="nav-close-btn" aria-label="Close Menu" data-nav-close-btn>
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
+
+        <ul class="navbar-list">
+
+          <li class="navbar-item">
+            <a href="index.html" class="navbar-link" data-navbar-link>Home</a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="contact-us.html" class="navbar-link">Contact Us</a>
+          </li>
+
+        </ul>
+
+      </nav>
+
+      <button class="alert-btn" id="alertBtn" aria-label="Open alerts">
+        <ion-icon name="notifications-outline"></ion-icon>
+        <span class="alert-badge" id="alertBadge"></span>
+      </button>
+      
+      <button class="nav-open-btn" aria-label="Open Menu" data-nav-open-btn>
+        <ion-icon name="menu-outline"></ion-icon>
+      </button>
+
+    </div>
+  </header>
+
+
+
+
+
+  <main>
+    <article>
+
+      <!-- 
+        - #HERO
+      -->
+
+      <section class="hero" id="home">
+  <div class="container">
+
+    <div class="hero-content">
+      <p class="hero-subtitle">Trusted by Businesses</p>
+
+      <h1 class="hero-title">
+        What Our Clients Say
+      </h1>
+
+      <p class="hero-text">
+        We pride ourselves on delivering reliable ledger management, audit preparation, and bookkeeping solutions. Here are some experiences from businesses we've worked with.
+      </p>
+    </div>
+
+    <figure class="hero-banner">
+      <img src="./assets/images/feautres-banner.png"
+           class="w-100 banner-animation"
+           alt="Happy clients">
+    </figure>
+
+  </div>
+</section>
+
+
+<section class="section testimonials" id="testimonials">
+  <div class="container">
+
+    <h2 class="h2 section-title underline">Client Testimonials</h2>
+
+    <p class="testimonial-intro">
+      We're proud to help businesses stay compliant, organised and prepared.
+      Here's what our clients have to say.
+    </p>
+
+    <div class="testimonial-grid">
+
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p>
+          "Received a ledger that was completely customised to my business.
+          Anytime anything needs updating, everything is done quickly and
+          efficiently. Anything that goes through the business bank goes
+          straight onto the ledger. 10/10."
+        </p>
+        <h4>The Foxhole</h4>
+      </div>
+
+     <div class="testimonial-card">
+        <p>
+          "btw for all business owners out there - quill & ink helped us get a 100% score on our audit. can't recommend @Charlee Henderson enough!"
+        </p>
+        <h4>Averie King - Bytes N Bites</h4>
+       <p>Yeeter 6th September 2026</p>
+      </div>
+
+     <!-- <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <p>
+          "Made our bookkeeping simple and stress-free.
+          Highly recommended for any growing business."
+        </p>
+        <h4>Client Name</h4>
+      </div> -->
+
+    </div>
+
+  </div>
+</section>
+
+<br>
+      
+
+  </article>
+</main>
+
+<br>
+  <!-- 
+    - #FOOTER
+  -->
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div class="container">
+        
+        
+        <p class="copyright">
+          &copy; 2026 <a href="#" class="copyright-link">Quill & Ink Services</a>. All Right Reserved
+        </p>
+      </div>
+  </footer>
+
+
+
+
+
+  <!-- 
+    - #GO TO TOP
+  -->
+
+  <a href="#top" class="go-top  active" aria-label="Go To Top" data-go-top>
+    <ion-icon name="arrow-up-outline"></ion-icon>
+  </a>
+
+
+
+  <div class="alert-popup" id="alertPopup">
+
+  <div class="alert-popup-header">
+    <h3>Notifications & Deadlines</h3>
+  </div>
+
+  <div class="alert-list" id="alertList"></div>
+
+</div>
+
+
+  <!-- 
+    - custom js link
+  -->
+  <script src="./assets/js/script.js?v=8"></script>
+  <script src="./assets/js/alerts.js?v=6"></script>
+
+  <!-- 
+    - ionicon link
+  -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+  
+</body>
+
+</html>
