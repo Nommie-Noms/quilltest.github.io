@@ -7,3 +7,5 @@
 .toast.info{border-left-color:var(--yellow)}
 @media(max-width:800px){.portal-hero{min-height:380px;padding-bottom:140px}}
 @media(prefers-reduced-motion:reduce){.toast{transition:none}}
+
+.account-settings summary{cursor:pointer;font-family:'Source Sans Pro',sans-serif;font-size:23px;font-weight:700;color:var(--blue)}.account-settings form{max-width:600px}.danger-zone{border-color:#cf8493}.danger-zone h2{color:#922543}.danger-button{background:#922543;color:white;border-radius:6px}#delete-acknowledged{display:inline-block;width:auto;margin-right:8px}
