@@ -10,12 +10,12 @@
   <!-- 
     - favicon
   -->
-  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="shortcut icon" href="assets/images/Favicon-3.png" type="image/png">
 
   <!-- 
     - custom css link
   -->
-  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/style.css?v=5">
 
   <!-- 
     - google font link
@@ -38,15 +38,16 @@
 
       <div class="overlay" data-overlay></div>
 
-      <a href="" onclick="location.reload(); return false;">
-        <h1 class="logo">Quill & Ink</h1>
+      <a href="" onclick="location.reload(); return false;" class="logo-link">
+        <img src="assets/images/QUILL_INK_MINI_WHITE.png"
+        alt="Quill & Ink" class="logo-img logo-light">
       </a>
 
       <nav class="navbar" data-navbar>
 
         <div class="navbar-top">
           <a href="#" class="logo">Quill & Ink</a>
-
+          
           <button class="nav-close-btn" aria-label="Close Menu" data-nav-close-btn>
             <ion-icon name="close-outline"></ion-icon>
           </button>
@@ -59,6 +60,10 @@
           </li>
 
           <li class="navbar-item">
+            <a href="testimonials.html" class="navbar-link">Testimonials</a>
+          </li>
+
+          <li class="navbar-item">
             <a href="#about" class="navbar-link" data-navbar-link>About</a>
           </li>
 
@@ -67,13 +72,18 @@
           </li>
 
           <li class="navbar-item">
-            <a href="#contact" class="navbar-link" data-navbar-link>Contact Us</a>
+            <a href="contact-us.html" class="navbar-link" data-navbar-link>Contact Us</a>
           </li>
 
         </ul>
 
       </nav>
 
+      <button class="alert-btn" id="alertBtn" aria-label="Open alerts">
+        <ion-icon name="notifications-outline"></ion-icon>
+        <span class="alert-badge" id="alertBadge"></span>
+      </button>
+      
       <button class="nav-open-btn" aria-label="Open Menu" data-nav-open-btn>
         <ion-icon name="menu-outline"></ion-icon>
       </button>
@@ -192,7 +202,7 @@
                   <ion-icon name="checkmark-circle-outline"></ion-icon>
                 </div>
 
-                <h3 class="h3 title">Audit Preperation</h3>
+                <h3 class="h3 title">Audit Preparation</h3>
 
                 <p class="text">
                   Got an Audit request from DoCL?
@@ -273,96 +283,14 @@
         </div>
       </section>
 
-<section class="section testimonials" id="testimonials">
-  <div class="container">
-
-    <h2 class="h2 section-title underline">Testimonials</h2>
-
-    <div class="testimonial-slider">
-
-        <!-- Testimonial 1 -->
-        <div class="testimonial-card active">
-          <div class="stars">★★★★★</div>
-          <p>"Fantastic service. Quick responses and excellent support."</p>
-          <h4>John Smith</h4>
-        </div>
-
-        <div class="testimonial-card">
-          <div class="stars">★★★★★</div>
-          <p>"Helped us get our books organised and audit-ready."</p>
-          <h4>Sarah Johnson</h4>
-        </div>
-
-        <div class="testimonial-card">
-          <div class="stars">★★★★★</div>
-          <p>"Professional, reliable and easy to work with."</p>
-          <h4>Michael Brown</h4>
-        </div>
-
-        <div class="testimonial-card">
-          <div class="stars">★★★★★</div>
-          <p>"Saved us countless hours managing our ledger."</p>
-          <h4>Emily Davis</h4>
-        </div>
-
-        <!-- Testimonial duplicates -->
-         <div class="testimonial-card">
-          <div class="stars">★★★★★</div>
-          <p>"Fantastic service. Quick responses and excellent support."</p>
-          <h4>John Smith</h4>
-        </div>
-
-        <div class="testimonial-card">
-          <div class="stars">★★★★★</div>
-          <p>"Helped us get our books organised and audit-ready."</p>
-          <h4>Sarah Johnson</h4>
-        </div>
-
-        <div class="testimonial-card">
-          <div class="stars">★★★★★</div>
-          <p>"Professional, reliable and easy to work with."</p>
-          <h4>Michael Brown</h4>
-        </div>
-
-        <div class="testimonial-card">
-          <div class="stars">★★★★★</div>
-          <p>"Saved us countless hours managing our ledger."</p>
-          <h4>Emily Davis</h4>
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-</section>
+<br>
       
-
-      <section id="contact" class="contact section">
-  <div class="container">
-
-        <h2 class="section-title underline">Contact Us</h2>
-
-    <div class="contact-grid">
-
-       <div class="contact-card">
-        <img src="assets/images/Chris_Henderson_Prof_Pic.png" alt="Missing" class="profile-pic">
-        <h3 class="contact-name">Christopher Henderson</h3>
-        <p class="contact-role">Owner</p>
-        <span class="phone" onclick="copyNumber('8356439887')">(835) 643-9887</span>
-      </div>
-
-      <div class="contact-card">
-        <h3 class="contact-name">Email Chain</h3>
-        <p class="contact-role">Join our email chain</p>
-        <span class="phone" onclick="copyNumber('https://discord.gg/DBB4BbdqPY')">Copy Link</span>
-      </div>
-      
-  </div>
   </div>
 
   </article>
 </main>
+
+<br>
   <!-- 
     - #FOOTER
   -->
@@ -371,10 +299,7 @@
     <div class="footer-bottom">
       <div class="container">
         
-        <div class="footer-brand">
-          <a href="#" class="logo">Quill & Ink</a>
         
-        </div>
         <p class="copyright">
           &copy; 2026 <a href="#" class="copyright-link">Quill & Ink Services</a>. All Right Reserved
         </p>
@@ -394,13 +319,22 @@
   </a>
 
 
+<div class="alert-popup" id="alertPopup">
 
+  <div class="alert-popup-header">
+    <h3>Notifications & Deadlines</h3>
+  </div>
+
+  <div class="alert-list" id="alertList"></div>
+
+</div>
 
 
   <!-- 
     - custom js link
   -->
-  <script src="./assets/js/script.js"></script>
+  <script src="./assets/js/script.js?v=8"></script>
+  <script src="./assets/js/alerts.js?v=6"></script>
 
   <!-- 
     - ionicon link
