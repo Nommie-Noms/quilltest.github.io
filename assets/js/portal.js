@@ -2,6 +2,7 @@
  'use strict';
  var $ = function (id) { return document.getElementById(id); };
  var config = window.PORTAL_CONFIG;
+ var page=document.body.getAttribute('data-portal-page') || 'dashboard';
  var mode = 'login', user = null, profile = null, staff = false, administrator = false, selected = null, version = 0;
  var names = {}, usernames = {}, staffIds = [], busy = false, links = {contract:'',documentation:''};
  var client, toastTimer;
@@ -12,10 +13,13 @@
   toastTimer=setTimeout(function(){$('copy-toast').className='toast';$('copy-toast').textContent='';},info?6000:4000);
  }
  function status(text) { $('status').textContent = text || ''; }
- function hide(id, hidden) { $(id).hidden = hidden; }
+ function hide(id, hidden) {if($(id))$(id).hidden=hidden;}
+ function value(id,text){if($(id))$(id).value=text;}
+ function text(id,message){if($(id))$(id).textContent=message;}
+ function bind(id,event,handler){if($(id))$(id)[event]=handler;}
  function money(value) { return '$' + Number(value).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
- function syncCopyButtons() { $('copy-contract').disabled=busy || !links.contract; $('copy-documentation').disabled=busy || !links.documentation; }
- function clearPackage() { links={contract:'',documentation:''};$('package-name').textContent='Not assigned';$('monthly-cost').textContent='—';$('package-input').value='';$('cost-input').value='0';$('contract-input').value='';$('documentation-input').value='';$('manual-copy').value='';hide('manual-copy-label',true);$('links-note').textContent='';syncCopyButtons(); }
+ function syncCopyButtons() {if(page!=='dashboard')return; $('copy-contract').disabled=busy || !links.contract; $('copy-documentation').disabled=busy || !links.documentation; }
+ function clearPackage() {if(page!=='dashboard')return; links={contract:'',documentation:''};$('package-name').textContent='Not assigned';$('monthly-cost').textContent='—';$('package-input').value='';$('cost-input').value='0';$('contract-input').value='';$('documentation-input').value='';$('manual-copy').value='';hide('manual-copy-label',true);$('links-note').textContent='';syncCopyButtons(); }
  function check(result) { if(result.error) throw new Error(result.error.message); return result.data; }
  function setMode(next) {
   mode = next;
@@ -36,12 +40,15 @@
   finally {busy=false; buttons.forEach(function(button){button.disabled=false;});syncCopyButtons();}
  }
  function clearDashboard() {
-  hide('account-deletion',true);$('settings-username').value='';$('settings-business').value='';$('settings-password').value='';$('delete-confirm').value='';$('delete-password').value='';$('delete-acknowledged').checked=false;
-  hide('password-change',true);hide('staff-recovery',true);hide('staff-reset-result',true);$('issued-password').value='';$('issued-code').value='';$('current-temporary').value='';$('permanent-password').value='';
-  version++; user=null; profile=null; selected=null; staff=false; administrator=false;names={};usernames={};staffIds=[];
-  clearPackage();hide('service-editor',true);$('messages').textContent='';$('client-select').textContent='';
-  $('account-name').textContent=''; $('message').value='';
-  hide('dashboard',true); hide('account',false);
+  hide('restricted',true);hide('account-deletion',true);hide('management-link',true);
+  ['settings-username','settings-business','settings-password','delete-confirm','delete-password','issued-password','issued-code','current-temporary','permanent-password','verification-note'].forEach(function(id){value(id,'');});
+  if($('delete-acknowledged'))$('delete-acknowledged').checked=false;
+  if($('identity-confirmed'))$('identity-confirmed').checked=false;
+  hide('password-change',true);hide('staff-recovery',true);hide('staff-reset-result',true);
+  version++;user=null;profile=null;selected=null;staff=false;administrator=false;names={};usernames={};staffIds=[];
+  clearPackage();hide('service-editor',true);text('messages','');text('client-select','');
+  text('account-name','');value('message','');
+  hide('dashboard',true);hide('account',false);
  }
  async function loadDashboard(session) {
   var preferred=selected;clearDashboard();
@@ -61,27 +68,36 @@
   }
   var results=await Promise.all([client.from('profiles').select('id,username,display_name').eq('id',accountId).single(),client.from('staff').select('user_id'),client.from('administrators').select('user_id').eq('user_id',accountId)]);
   profile=check(results[0]);staffIds=check(results[1]).map(function(item){return item.user_id;});staff=staffIds.includes(accountId);administrator=check(results[2]).some(function(item){return item.user_id===accountId;});
-  $('settings-username').value=profile.username;$('settings-business').value=profile.display_name;
+  value('settings-username',profile.username);value('settings-business',profile.display_name);
   names[accountId]=profile.display_name;usernames[accountId]=profile.username;
   $('account-name').textContent=profile.display_name;
   $('role-label').textContent=staff?'STAFF ACCOUNT':'CLIENT ACCOUNT';
-  hide('client-label',!staff);hide('staff-recovery',!staff);hide('service-editor',!staff);
+  hide('management-link',!staff);hide('client-label',!staff);hide('service-editor',!staff);
+  if(page==='settings'){hide('account',true);hide('dashboard',false);return;}
+  if(page==='management' && !staff){hide('account',true);hide('restricted',false);status('Staff access is required for account management.');return;}
   if(staff) {
    // Paginate profiles so staff can reach every client, beyond the API's default row limit.
    var clients=[],offset=0,batch;
    do {batch=check(await client.from('profiles').select('id,username,display_name').order('username').range(offset,offset+499));clients=clients.concat(batch);offset+=500;} while(batch.length===500);
-   clients.forEach(function(item){names[item.id]=item.display_name;usernames[item.id]=item.username;var option=document.createElement('option');option.value=item.id;option.textContent=item.display_name+' (@'+item.username+')';$('client-select').appendChild(option);});
-   selected=clients.some(function(item){return item.id===preferred;})?preferred:(clients.length?clients[0].id:accountId);$('client-select').value=selected;
+   if(page==='management'){var placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Choose an account';$('client-select').appendChild(placeholder);}
+   clients.forEach(function(item){if(page==='management' && item.id===accountId)return;names[item.id]=item.display_name;usernames[item.id]=item.username;var option=document.createElement('option');option.value=item.id;option.textContent=item.display_name+' (@'+item.username+')';$('client-select').appendChild(option);});
+   selected=clients.some(function(item){return item.id===preferred && (page!=='management' || item.id!==accountId);})?preferred:(page==='management'?null:(clients.length?clients[0].id:accountId));$('client-select').value=selected || '';
   } else selected=accountId;
   hide('account',true);hide('dashboard',false);
   await refresh();
  }
  async function refresh() {
-  if(!user || !selected) return;
+  if(!user)return;
+  if(page==='management'){
+   var permitted=!!selected && selected!==user.id;
+   hide('staff-recovery',!(permitted && (administrator || !staffIds.includes(selected))));
+   hide('account-deletion',!(permitted && administrator && !staffIds.includes(selected)));
+   text('delete-target','Selected account: @'+(usernames[selected] || ''));
+   text('management-note',!selected?'Select an account to manage recovery or deletion.':staffIds.includes(selected)?(administrator?'This is a staff account. Recovery is available; deletion is protected.':'Only an administrator can recover this staff account.'):'Recovery is available for this customer.'+(administrator?' Deletion is also available.':''));
+   return;
+  }
+  if(page==='settings' || !selected)return;
   var target=selected,requestVersion=++version;
-  hide('account-deletion',!(administrator && selected!==user.id && !staffIds.includes(selected)));
-  $('delete-target').textContent='Selected account: @'+(usernames[selected] || '');
-  $('delete-confirm').value='';$('delete-password').value='';$('delete-acknowledged').checked=false;
   clearPackage();$('package-name').textContent='Loading…';$('messages').textContent='';
   var results=await Promise.all([
    client.from('client_services').select('package_name,monthly_cost,contract_url,documentation_url').eq('client_id',target).maybeSingle(),
@@ -138,10 +154,11 @@
   }
  });};
  $('recovery-saved').onclick=function(){$('recovery-output').value='';hide('recovery-result',true);hide('account',false);setMode('login');};
- $('client-select').onchange=function(){hide('staff-reset-result',true);$('issued-password').value='';$('issued-code').value='';$('verification-note').value='';$('identity-confirmed').checked=false;selected=this.value;status('');run(refresh);};
- $('refresh').onclick=function(){status('');run(refresh);};
- $('logout').onclick=function(){run(async function(){check(await client.auth.signOut({scope:'local'}));clearDashboard();status('Signed out.');});};
- $('profile-form').onsubmit=function(event){event.preventDefault();run(async function(){
+ bind('client-select','onchange',function(){hide('staff-reset-result',true);['issued-password','issued-code','verification-note','delete-password','delete-confirm'].forEach(function(id){value(id,'');});if($('identity-confirmed'))$('identity-confirmed').checked=false;if($('delete-acknowledged'))$('delete-acknowledged').checked=false;selected=this.value || null;status('');run(refresh);});
+ bind('refresh','onclick',function(){status('');run(async function(){if(page==='management'){var session=check(await client.auth.getSession()).session;await loadDashboard(session);}else await refresh();});});
+ bind('logout','onclick',function(){run(async function(){check(await client.auth.signOut({scope:'local'}));clearDashboard();status('Signed out.');});});
+ bind('restricted-logout','onclick',function(){$('logout').click();});
+ bind('profile-form','onsubmit',function(event){event.preventDefault();run(async function(){
   var username=$('settings-username').value.trim().toLowerCase();
   var result=await accountAction({action:'update-profile',username:username,displayName:$('settings-business').value.trim(),currentPassword:$('settings-password').value});
   $('settings-password').value='';
@@ -150,28 +167,28 @@
    $('recovery-output').value=result.recoveryCode;hide('account',true);hide('recovery-result',false);
    status('Username updated. Save your new recovery code, then sign in with your new username and existing password.');
   }else{var session=check(await client.auth.getSession()).session;await loadDashboard(session);status('Business name updated.');toast('Business name updated.');}
- });};
- $('delete-form').onsubmit=function(event){event.preventDefault();run(async function(){
+ });});
+ bind('delete-form','onsubmit',function(event){event.preventDefault();run(async function(){
   if(!administrator || !selected || selected===user.id || staffIds.includes(selected))throw new Error('Select a customer account. Staff accounts are protected.');
   if(!$('delete-acknowledged').checked || $('delete-confirm').value!==usernames[selected])throw new Error('Confirm deletion and type the exact selected customer username.');
   var result=await accountAction({action:'delete-account',targetId:selected,confirmUsername:$('delete-confirm').value,currentPassword:$('delete-password').value});
   $('delete-password').value='';selected=null;
   var session=check(await client.auth.getSession()).session;await loadDashboard(session);
   status(result.auditWarning?'Customer deleted. The audit completion could not be recorded; check Supabase before proceeding.':'Customer account and portal records deleted.');toast('Customer account deleted.');
- });};
- $('staff-reset-form').onsubmit=function(event){event.preventDefault();run(async function(){
+ });});
+ bind('staff-reset-form','onsubmit',function(event){event.preventDefault();run(async function(){
   if(!staff || !selected || selected===user.id)throw new Error('Select another customer. You cannot reset your own account here.');
   if(!$('identity-confirmed').checked)throw new Error('Verify the account owner first.');
   var result=await accountAction({action:'staff-reset',targetId:selected,reason:$('verification-note').value.trim()});
   $('issued-password').value=result.temporaryPassword;$('issued-code').value=result.recoveryCode;hide('staff-reset-result',false);status('Reset recorded. Deliver the temporary credentials privately to the verified owner.');
- });};
- $('dismiss-credentials').onclick=function(){hide('staff-reset-result',true);$('issued-password').value='';$('issued-code').value='';$('verification-note').value='';$('identity-confirmed').checked=false;};
- $('temporary-form').onsubmit=function(event){event.preventDefault();run(async function(){
+ });});
+ bind('dismiss-credentials','onclick',function(){hide('staff-reset-result',true);$('issued-password').value='';$('issued-code').value='';$('verification-note').value='';$('identity-confirmed').checked=false;});
+ bind('temporary-form','onsubmit',function(event){event.preventDefault();run(async function(){
   var result=await accountAction({action:'change-temporary',currentPassword:$('current-temporary').value,password:$('permanent-password').value});
   check(await client.auth.signOut({scope:'local'}));clearDashboard();hide('account',true);hide('password-change',true);
   $('recovery-output').value=result.recoveryCode;hide('recovery-result',false);status('Password updated. Save your replacement recovery code, then sign in again.');
- });};
- $('temporary-logout').onclick=function(){run(async function(){check(await client.auth.signOut({scope:'local'}));clearDashboard();status('Signed out.');});};
+ });});
+ bind('temporary-logout','onclick',function(){run(async function(){check(await client.auth.signOut({scope:'local'}));clearDashboard();status('Signed out.');});});
  function validLink(value) {
   try {var url=new URL(value);return url.protocol==='https:' && url.hostname && !url.username && !url.password ? url.href : '';} catch(error) {return '';}
  }
@@ -183,9 +200,9 @@
   try {if(document.execCommand('copy')){hide('manual-copy-label',true);status('');toast(kind==='contract'?'Contract link copied.':'Documentation link copied.');return;}}catch(error){}
   status('Automatic copying is unavailable in this browser. Copy the selected link manually.');toast('Copy the selected link manually.',true);
  }
- $('copy-contract').onclick=function(){copyLink('contract');};
- $('copy-documentation').onclick=function(){copyLink('documentation');};
- $('service-form').onsubmit=function(event){event.preventDefault();run(async function(){
+ bind('copy-contract','onclick',function(){copyLink('contract');});
+ bind('copy-documentation','onclick',function(){copyLink('documentation');});
+ bind('service-form','onsubmit',function(event){event.preventDefault();run(async function(){
   if(!staff || !selected)throw new Error('Staff access required.');
   var contract=$('contract-input').value.trim(),documentation=$('documentation-input').value.trim();
   if((contract && !validLink(contract)) || (documentation && !validLink(documentation)))throw new Error('Use full HTTPS document links without embedded usernames or passwords.');
@@ -193,13 +210,13 @@
   if(!packageName && cost!==0)throw new Error('Enter a package name or set the monthly cost to zero.');
   check(await client.from('client_services').upsert({client_id:selected,package_name:packageName,monthly_cost:cost,contract_url:contract,documentation_url:documentation,updated_by:user.id},{onConflict:'client_id'}));
   await refresh();status('Package details saved.');
- });};
- $('message-form').onsubmit=function(event){event.preventDefault();run(async function(){
+ });});
+ bind('message-form','onsubmit',function(event){event.preventDefault();run(async function(){
   if(!user || !selected)throw new Error('Please sign in again.');
   var body=$('message').value.trim();if(!body)throw new Error('Enter a message.');
   check(await client.from('messages').insert({client_id:selected,sender_id:user.id,body:body}));
   $('message').value='';await refresh();status('Message sent.');
- });};
+ });});
  client.auth.onAuthStateChange(function(event,session){
   if(event==='SIGNED_OUT'){clearDashboard();}
   // Keep database work outside the synchronous auth callback.
