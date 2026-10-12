@@ -9,3 +9,5 @@
 @media(prefers-reduced-motion:reduce){.toast{transition:none}}
 
 .account-settings summary{cursor:pointer;font-family:'Source Sans Pro',sans-serif;font-size:23px;font-weight:700;color:var(--blue)}.account-settings form{max-width:600px}.danger-zone{border-color:#cf8493}.danger-zone h2{color:#922543}.danger-button{background:#922543;color:white;border-radius:6px}#delete-acknowledged{display:inline-block;width:auto;margin-right:8px}
+
+.portal-navigation{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0 24px}.button-link{display:inline-block;padding:12px 22px;border-radius:0 25px;background-image:var(--accent);background-size:200%;color:#23103b;text-decoration:none;font-weight:500;font-size:14px;transition:background-position .3s}.button-link:hover{background-position:right}.button-link[aria-current=page]{background:var(--gradient);color:white}body[data-portal-page=settings] .account-settings{max-width:700px;margin:24px auto}body[data-portal-page=management] #staff-recovery,body[data-portal-page=management] #account-deletion{max-width:800px}body[data-portal-page=management] #client-label{max-width:800px}
