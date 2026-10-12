@@ -28,6 +28,7 @@
   finally {busy=false; buttons.forEach(function(button){button.disabled=false;});}
  }
  function clearDashboard() {
+  hide('password-change',true);hide('staff-recovery',true);hide('staff-reset-result',true);$('issued-password').value='';$('issued-code').value='';$('current-temporary').value='';$('permanent-password').value='';
   version++; user=null; profile=null; selected=null; staff=false; names={};
   $('ledger').textContent=''; $('messages').textContent=''; $('client-select').textContent='';
   $('income').textContent='$0'; $('expenses').textContent='$0'; $('balance').textContent='$0';
@@ -39,12 +40,22 @@
   if(!session) return;
   user=session.user;
   var accountId=user.id;
+  var security=check(await client.from('account_security').select('password_required,revoked_before,phase').eq('user_id',accountId).maybeSingle());
+  if(security && security.password_required) {
+   hide('account',true);hide('password-change',false);
+   status(security.phase==='awaiting_change'?'Change your temporary password to continue.':'Account recovery needs staff assistance. Ask staff to issue a new temporary password.');
+   return;
+  }
+  if(security && security.revoked_before) {
+   var claims=JSON.parse(atob(session.access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+   if(Number(claims.iat)<=Number(security.revoked_before)){check(await client.auth.signOut({scope:'local'}));clearDashboard();status('This session has been revoked. Sign in again.');return;}
+  }
   var results=await Promise.all([client.from('profiles').select('id,username,display_name').eq('id',accountId).single(),client.from('staff').select('user_id').eq('user_id',accountId)]);
   profile=check(results[0]); staff=check(results[1]).length>0;
   names[accountId]=profile.display_name;
   $('account-name').textContent=profile.display_name;
   $('role-label').textContent=staff?'STAFF ACCOUNT':'CLIENT ACCOUNT';
-  hide('client-label',!staff);
+  hide('client-label',!staff);hide('staff-recovery',!staff);
   if(staff) {
    // Paginate profiles so staff can reach every client, beyond the API's default row limit.
    var clients=[],offset=0,batch;
@@ -78,7 +89,13 @@
   var controller=typeof AbortController!=='undefined'?new AbortController():null;
   var timer=controller?setTimeout(function(){controller.abort();},20000):null;
   try {
-   var response=await fetch(config.supabaseUrl+'/functions/v1/accounts',{method:'POST',headers:{'Content-Type':'application/json',apikey:config.supabasePublishableKey},body:JSON.stringify(data),signal:controller?controller.signal:undefined});
+   var requestHeaders={'Content-Type':'application/json',apikey:config.supabasePublishableKey};
+   if(data.action==='staff-reset' || data.action==='change-temporary') {
+    var currentSession=check(await client.auth.getSession()).session;
+    if(!currentSession)throw new Error('Sign in again.');
+    requestHeaders.Authorization='Bearer '+currentSession.access_token;
+   }
+   var response=await fetch(config.supabaseUrl+'/functions/v1/accounts',{method:'POST',headers:requestHeaders,body:JSON.stringify(data),signal:controller?controller.signal:undefined});
    var body=await response.json();
    if(!response.ok)throw new Error(body.error || 'Account service failed. Check that the accounts function is deployed.');
    return body;
@@ -104,9 +121,22 @@
   }
  });};
  $('recovery-saved').onclick=function(){$('recovery-output').value='';hide('recovery-result',true);hide('account',false);setMode('login');};
- $('client-select').onchange=function(){selected=this.value;status('');run(refresh);};
+ $('client-select').onchange=function(){hide('staff-reset-result',true);$('issued-password').value='';$('issued-code').value='';$('verification-note').value='';$('identity-confirmed').checked=false;selected=this.value;status('');run(refresh);};
  $('refresh').onclick=function(){status('');run(refresh);};
  $('logout').onclick=function(){run(async function(){check(await client.auth.signOut({scope:'local'}));clearDashboard();status('Signed out.');});};
+ $('staff-reset-form').onsubmit=function(event){event.preventDefault();run(async function(){
+  if(!staff || !selected || selected===user.id)throw new Error('Select another customer. You cannot reset your own account here.');
+  if(!$('identity-confirmed').checked)throw new Error('Verify the account owner first.');
+  var result=await accountAction({action:'staff-reset',targetId:selected,reason:$('verification-note').value.trim()});
+  $('issued-password').value=result.temporaryPassword;$('issued-code').value=result.recoveryCode;hide('staff-reset-result',false);status('Reset recorded. Deliver the temporary credentials privately to the verified owner.');
+ });};
+ $('dismiss-credentials').onclick=function(){hide('staff-reset-result',true);$('issued-password').value='';$('issued-code').value='';$('verification-note').value='';$('identity-confirmed').checked=false;};
+ $('temporary-form').onsubmit=function(event){event.preventDefault();run(async function(){
+  var result=await accountAction({action:'change-temporary',currentPassword:$('current-temporary').value,password:$('permanent-password').value});
+  check(await client.auth.signOut({scope:'local'}));clearDashboard();hide('account',true);hide('password-change',true);
+  $('recovery-output').value=result.recoveryCode;hide('recovery-result',false);status('Password updated. Save your replacement recovery code, then sign in again.');
+ });};
+ $('temporary-logout').onclick=function(){run(async function(){check(await client.auth.signOut({scope:'local'}));clearDashboard();status('Signed out.');});};
  $('entry-date').value=new Date().toLocaleDateString('en-CA');
  // Construct YYYY-MM-DD explicitly because embedded browser locale output may differ.
  var today=new Date();$('entry-date').value=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
