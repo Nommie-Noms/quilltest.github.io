@@ -1,0 +1,132 @@
+(function () {
+ 'use strict';
+ var $ = function (id) { return document.getElementById(id); };
+ var config = window.PORTAL_CONFIG;
+ var mode = 'login', user = null, profile = null, staff = false, selected = null, version = 0;
+ var names = {}, busy = false;
+ var client;
+ function status(text) { $('status').textContent = text || ''; }
+ function hide(id, hidden) { $(id).hidden = hidden; }
+ function money(value) { return '$' + Number(value).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+ function check(result) { if(result.error) throw new Error(result.error.message); return result.data; }
+ function setMode(next) {
+  mode = next;
+  hide('display-label',next!=='register'); hide('recovery-label',next!=='recover');
+  $('display-name').required = next==='register'; $('recovery-input').required = next==='recover';
+  $('password').autocomplete = next==='login' ? 'current-password' : 'new-password';
+  $('auth-title').textContent = next==='login' ? 'Sign in' : next==='register' ? 'Create account' : 'Reset your password';
+  $('auth-submit').textContent = next==='login' ? 'Sign in' : next==='register' ? 'Create account' : 'Reset password';
+  document.querySelectorAll('[data-mode]').forEach(function(button) {button.setAttribute('aria-pressed',String(button.dataset.mode===next));});
+  status('');
+ }
+ async function run(task) {
+  if(busy) return;
+  busy=true;
+  var buttons=Array.from(document.querySelectorAll('button, input, select, textarea'));
+  buttons.forEach(function(button){button.disabled=true;});
+  try {await task();} catch(error) {status(error.message || 'Something went wrong. Please try again.');}
+  finally {busy=false; buttons.forEach(function(button){button.disabled=false;});}
+ }
+ function clearDashboard() {
+  version++; user=null; profile=null; selected=null; staff=false; names={};
+  $('ledger').textContent=''; $('messages').textContent=''; $('client-select').textContent='';
+  $('income').textContent='$0'; $('expenses').textContent='$0'; $('balance').textContent='$0';
+  $('account-name').textContent=''; $('message').value='';
+  hide('dashboard',true); hide('account',false);
+ }
+ async function loadDashboard(session) {
+  clearDashboard();
+  if(!session) return;
+  user=session.user;
+  var accountId=user.id;
+  var results=await Promise.all([client.from('profiles').select('id,username,display_name').eq('id',accountId).single(),client.from('staff').select('user_id').eq('user_id',accountId)]);
+  profile=check(results[0]); staff=check(results[1]).length>0;
+  names[accountId]=profile.display_name;
+  $('account-name').textContent=profile.display_name;
+  $('role-label').textContent=staff?'STAFF ACCOUNT':'CLIENT ACCOUNT';
+  hide('client-label',!staff);
+  if(staff) {
+   // Paginate profiles so staff can reach every client, beyond the API's default row limit.
+   var clients=[],offset=0,batch;
+   do {batch=check(await client.from('profiles').select('id,username,display_name').order('username').range(offset,offset+499));clients=clients.concat(batch);offset+=500;} while(batch.length===500);
+   clients.forEach(function(item){names[item.id]=item.display_name;var option=document.createElement('option');option.value=item.id;option.textContent=item.display_name+' (@'+item.username+')';$('client-select').appendChild(option);});
+   selected=clients.length?clients[0].id:accountId;
+  } else selected=accountId;
+  hide('account',true);hide('dashboard',false);
+  await refresh();
+ }
+ async function refresh() {
+  if(!user || !selected) return;
+  var target=selected,requestVersion=++version;
+  $('ledger').textContent='';$('messages').textContent='';
+  $('income').textContent='…';$('expenses').textContent='…';$('balance').textContent='…';
+  var results=await Promise.all([
+   client.rpc('finance_totals',{target:target}),
+   client.from('transactions').select('entry_date,kind,amount,description').eq('client_id',target).order('entry_date',{ascending:false}).order('created_at',{ascending:false}).limit(100),
+   client.from('messages').select('sender_id,body,created_at').eq('client_id',target).order('created_at',{ascending:false}).limit(100)
+  ]);
+  if(requestVersion!==version || selected!==target || !user) return;
+  var totals=check(results[0])[0],entries=check(results[1]),messages=check(results[2]);
+  $('income').textContent=money(totals.income);$('expenses').textContent=money(totals.expenses);$('balance').textContent=money(Number(totals.income)-Number(totals.expenses));
+  entries.forEach(function(entry){var row=document.createElement('tr');[entry.entry_date,entry.description,entry.kind,money(entry.amount)].forEach(function(value){var td=document.createElement('td');td.textContent=value;row.appendChild(td);});$('ledger').appendChild(row);});
+  if(!entries.length){var row=document.createElement('tr'),cell=document.createElement('td');cell.colSpan=4;cell.textContent='No entries yet.';row.appendChild(cell);$('ledger').appendChild(row);}
+  messages.reverse().forEach(function(message){var box=document.createElement('div');box.className='message'+(message.sender_id!==target?' staff':'');var author=document.createElement('small');author.textContent=(names[message.sender_id] || (message.sender_id===target?'Client':'Quill & Ink staff'))+' · '+new Date(message.created_at).toLocaleString();var body=document.createElement('p');body.textContent=message.body;box.appendChild(author);box.appendChild(body);$('messages').appendChild(box);});
+  if(!messages.length)$('messages').textContent='Start your private discussion below.';
+  $('messages').scrollTop=$('messages').scrollHeight;
+ }
+ async function accountAction(data) {
+  var controller=typeof AbortController!=='undefined'?new AbortController():null;
+  var timer=controller?setTimeout(function(){controller.abort();},20000):null;
+  try {
+   var response=await fetch(config.supabaseUrl+'/functions/v1/accounts',{method:'POST',headers:{'Content-Type':'application/json',apikey:config.supabasePublishableKey},body:JSON.stringify(data),signal:controller?controller.signal:undefined});
+   var body=await response.json();
+   if(!response.ok)throw new Error(body.error || 'Account service failed. Check that the accounts function is deployed.');
+   return body;
+  } finally {if(timer)clearTimeout(timer);}
+ }
+ try {
+  if(!window.supabase || !config) throw new Error('Portal files could not load. Check the vendor and configuration files.');
+  // Refuse a silent in-memory session: the phone must support durable storage.
+  localStorage.setItem('quill-portal-storage-check','ok');localStorage.removeItem('quill-portal-storage-check');
+  client=window.supabase.createClient(config.supabaseUrl,config.supabasePublishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false,storageKey:'quill-test-auth-v1'}});
+ } catch(error) {status('This browser cannot initialise the portal: '+error.message);$('auth-submit').disabled=true;return;}
+ document.querySelectorAll('[data-mode]').forEach(function(button){button.onclick=function(){setMode(button.dataset.mode);};});
+ $('auth-form').onsubmit=function(event){event.preventDefault();run(async function(){
+  status('');var username=$('username').value.trim().toLowerCase(),password=$('password').value;
+  if(mode==='login') {
+   var result=await client.auth.signInWithPassword({email:username+'@accounts.quill-ink.invalid',password:password});
+   if(result.error)throw new Error('Could not sign in. Check your username and password.');
+   $('password').value='';await loadDashboard(result.data.session);
+  } else {
+   var result=await accountAction({action:mode,username:username,password:password,displayName:$('display-name').value,recoveryCode:$('recovery-input').value});
+   $('password').value='';$('recovery-input').value='';$('recovery-output').value=result.recoveryCode;
+   hide('account',true);hide('recovery-result',false);status('Save the code, then sign in with your password.');
+  }
+ });};
+ $('recovery-saved').onclick=function(){$('recovery-output').value='';hide('recovery-result',true);hide('account',false);setMode('login');};
+ $('client-select').onchange=function(){selected=this.value;status('');run(refresh);};
+ $('refresh').onclick=function(){status('');run(refresh);};
+ $('logout').onclick=function(){run(async function(){check(await client.auth.signOut({scope:'local'}));clearDashboard();status('Signed out.');});};
+ $('entry-date').value=new Date().toLocaleDateString('en-CA');
+ // Construct YYYY-MM-DD explicitly because embedded browser locale output may differ.
+ var today=new Date();$('entry-date').value=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+ $('entry-form').onsubmit=function(event){event.preventDefault();run(async function(){
+  if(!user || !selected)throw new Error('Please sign in again.');
+  var description=$('description').value.trim();if(!description)throw new Error('Enter a description.');
+  check(await client.from('transactions').insert({client_id:selected,author_id:user.id,entry_date:$('entry-date').value,kind:$('entry-kind').value,amount:Number($('amount').value),description:description}));
+  $('amount').value='';$('description').value='';await refresh();status('Entry saved.');
+ });};
+ $('message-form').onsubmit=function(event){event.preventDefault();run(async function(){
+  if(!user || !selected)throw new Error('Please sign in again.');
+  var body=$('message').value.trim();if(!body)throw new Error('Enter a message.');
+  check(await client.from('messages').insert({client_id:selected,sender_id:user.id,body:body}));
+  $('message').value='';await refresh();status('Message sent.');
+ });};
+ client.auth.onAuthStateChange(function(event,session){
+  if(event==='SIGNED_OUT'){clearDashboard();}
+  // Keep database work outside the synchronous auth callback.
+  if(event==='SIGNED_IN' && user && user.id!==session.user.id)setTimeout(function(){run(function(){return loadDashboard(session);});},0);
+ });
+ setMode('login');
+ run(async function(){var data=check(await client.auth.getSession());await loadDashboard(data.session);});
+}());
