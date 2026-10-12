@@ -1,12 +1,350 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Account management | Quill &amp; Ink Test</title><link rel="icon" href="assets/images/Favicon-3.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&amp;family=Source+Sans+Pro:wght@600;700&amp;display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/portal.css?v=logo-refresh-2"></head><body data-portal-page="management">
-<header><a href="account-management.html" id="logo-refresh" aria-label="Refresh current page" title="Refresh current page"><img src="assets/images/QUILL_INK_MINI_WHITE.png" alt="Quill &amp; Ink"></a><a href="portal.html">Back to client portal</a></header>
-<section class="portal-hero"><div class="hero-inner"><p class="eyebrow">PRECISION IN EVERY DETAIL</p><h1>Account management</h1><p>Manage account recovery and customer deletion.</p></div></section><main><p id="status" role="status" aria-live="polite"></p>
-<section class="card" id="account"><div class="tabs" role="group" aria-label="Account options"><button data-mode="login">Sign in</button><button data-mode="register">Create account</button><button data-mode="recover">Recover account</button></div><h2 id="auth-title">Sign in</h2><form id="auth-form"><label>Username<input id="username" autocomplete="username" minlength="3" maxlength="24" pattern="[A-Za-z0-9_]{3,24}" required=""><span class="note">3–24 letters, numbers, or underscores.</span></label><label id="display-label" hidden="">Character or business name<input id="display-name" maxlength="80"></label><label>Password<input id="password" type="password" autocomplete="current-password" minlength="12" maxlength="128" required=""><span class="note">At least 12 characters.</span></label><label id="recovery-label" hidden="">Recovery code<input id="recovery-input" autocomplete="off" maxlength="80"></label><button id="auth-submit" type="submit">Sign in</button></form><p class="note">No email address required. Save your recovery code when creating an account.</p></section>
-<section class="card" id="recovery-result" hidden=""><h2>Save your recovery code</h2><p>This code can reset your password. Store it privately outside the in-game phone. A successful reset replaces it with a new code.</p><label>Recovery code<input id="recovery-output" readonly=""></label><button id="recovery-saved">I have saved it — continue</button></section>
-<section class="card" id="password-change" hidden=""><h2>Choose your own password</h2><p>Your account was recovered by staff. Change the temporary password to reopen your portal.</p><form id="temporary-form"><label>Temporary password<input id="current-temporary" type="password" autocomplete="current-password" required=""></label><label>New password<input id="permanent-password" type="password" minlength="12" maxlength="128" autocomplete="new-password" required=""></label><button>Save new password</button></form><button id="temporary-logout">Sign out</button></section>
-<section id="restricted" class="card" hidden=""><h2>Staff access required</h2><p>This page is available to Quill &amp; Ink staff.</p><a class="button-link" href="portal.html">Back to client portal</a> <button id="restricted-logout">Sign out</button></section><section id="dashboard" hidden=""><div class="actions"><div><p class="eyebrow" id="role-label">CLIENT ACCOUNT</p><h2 id="account-name"></h2></div></div><nav class="portal-navigation" aria-label="Portal pages"><a class="button-link" href="portal.html">Client portal</a><a class="button-link" href="account-settings.html">Account settings</a><a class="button-link" id="management-link" href="account-management.html" hidden="" aria-current="page">Account management</a><button id="logout">Sign out</button></nav><label id="client-label" hidden="">Account to manage<select id="client-select"></select></label><p id="management-note" class="note"></p>
-<section class="card" id="staff-recovery" hidden=""><h2>Recover selected account</h2><p>Verify the customer's identity before resetting their account. Staff accounts require an administrator. You cannot reset your own account here.</p><form id="staff-reset-form"><label>Identity verification note<textarea id="verification-note" minlength="10" maxlength="500" rows="3" required="" placeholder="Describe how you verified the account owner. Do not include passwords or recovery codes."></textarea></label><label><input id="identity-confirmed" type="checkbox" required=""> I have verified this person's identity and intend to reset the selected account.</label><button>Issue temporary password</button></form><div id="staff-reset-result" hidden=""><p>Share these credentials privately with the verified owner. They are shown only for this reset. The previous recovery code is invalid.</p><label>Temporary password<input id="issued-password" readonly=""></label><label>Recovery code<input id="issued-code" readonly=""></label><p>The customer must choose a new password. They will receive a replacement recovery code after that change.</p><button id="dismiss-credentials">Credentials delivered — clear</button></div></section>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<section class="card danger-zone" id="account-deletion" hidden=""><h2>Delete selected customer account</h2><p id="delete-target"></p><p>This permanently deletes the customer's login, package details, messages, and saved ledger entries. It cannot be undone through the portal. Linked documents themselves are not deleted.</p><form id="delete-form"><label>Type the customer's exact username<input id="delete-confirm" autocomplete="off" required=""></label><label>Your administrator password<input id="delete-password" type="password" autocomplete="current-password" required=""></label><label><input id="delete-acknowledged" type="checkbox" required=""> I intend to permanently delete this customer account and its portal records.</label><button class="danger-button">Permanently delete customer</button></form></section></section>
-<div id="copy-toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div><noscript>This portal needs JavaScript enabled.</noscript></main><script src="assets/vendor/supabase-2.57.4.js"></script><script src="assets/js/portal-config.js"></script><script src="assets/js/portal.js?v=logo-refresh-1"></script>
-</body></html>
+  <title>Account management | Quill &amp; Ink Test</title>
+
+  <link rel="icon" href="assets/images/Favicon-3.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&amp;family=Source+Sans+Pro:wght@600;700&amp;display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="assets/css/portal.css?v=logo-refresh-2">
+</head>
+
+<body data-portal-page="management">
+  <!-- Header -->
+  <header>
+    <a
+      href="account-management.html"
+      id="logo-refresh"
+      aria-label="Refresh current page"
+      title="Refresh current page"
+    >
+      <img
+        src="assets/images/QUILL_INK_MINI_WHITE.png"
+        alt="Quill &amp; Ink"
+      >
+    </a>
+
+    <a href="portal.html">Back to client portal</a>
+  </header>
+
+  <!-- Hero -->
+  <section class="portal-hero">
+    <div class="hero-inner">
+      <p class="eyebrow">PRECISION IN EVERY DETAIL</p>
+      <h1>Account management</h1>
+      <p>Manage account recovery and customer deletion.</p>
+    </div>
+  </section>
+
+  <main>
+    <p id="status" role="status" aria-live="polite"></p>
+
+    <!-- Sign in, registration, and recovery -->
+    <section class="card" id="account">
+      <div class="tabs" role="group" aria-label="Account options">
+        <button data-mode="login">Sign in</button>
+        <button data-mode="register">Create account</button>
+        <button data-mode="recover">Recover account</button>
+      </div>
+
+      <h2 id="auth-title">Sign in</h2>
+
+      <form id="auth-form">
+        <label>
+          Username
+          <input
+            id="username"
+            autocomplete="username"
+            minlength="3"
+            maxlength="24"
+            pattern="[A-Za-z0-9_]{3,24}"
+            required
+          >
+          <span class="note">
+            3–24 letters, numbers, or underscores.
+          </span>
+        </label>
+
+        <label id="display-label" hidden>
+          Character or business name
+          <input id="display-name" maxlength="80">
+        </label>
+
+        <label>
+          Password
+          <input
+            id="password"
+            type="password"
+            autocomplete="current-password"
+            minlength="12"
+            maxlength="128"
+            required
+          >
+          <span class="note">At least 12 characters.</span>
+        </label>
+
+        <label id="recovery-label" hidden>
+          Recovery code
+          <input
+            id="recovery-input"
+            autocomplete="off"
+            maxlength="80"
+          >
+        </label>
+
+        <button id="auth-submit" type="submit">Sign in</button>
+      </form>
+
+      <p class="note">
+        No email address required. Save your recovery code when creating
+        an account.
+      </p>
+    </section>
+
+    <!-- Recovery code -->
+    <section class="card" id="recovery-result" hidden>
+      <h2>Save your recovery code</h2>
+
+      <p>
+        This code can reset your password. Store it privately outside the
+        in-game phone. A successful reset replaces it with a new code.
+      </p>
+
+      <label>
+        Recovery code
+        <input id="recovery-output" readonly>
+      </label>
+
+      <button id="recovery-saved">
+        I have saved it — continue
+      </button>
+    </section>
+
+    <!-- Required password change -->
+    <section class="card" id="password-change" hidden>
+      <h2>Choose your own password</h2>
+
+      <p>
+        Your account was recovered by staff. Change the temporary password
+        to reopen your portal.
+      </p>
+
+      <form id="temporary-form">
+        <label>
+          Temporary password
+          <input
+            id="current-temporary"
+            type="password"
+            autocomplete="current-password"
+            required
+          >
+        </label>
+
+        <label>
+          New password
+          <input
+            id="permanent-password"
+            type="password"
+            minlength="12"
+            maxlength="128"
+            autocomplete="new-password"
+            required
+          >
+        </label>
+
+        <button>Save new password</button>
+      </form>
+
+      <button id="temporary-logout">Sign out</button>
+    </section>
+
+    <!-- Restricted access -->
+    <section id="restricted" class="card" hidden>
+      <h2>Staff access required</h2>
+      <p>This page is available to Quill &amp; Ink staff.</p>
+
+      <a class="button-link" href="portal.html">
+        Back to client portal
+      </a>
+
+      <button id="restricted-logout">Sign out</button>
+    </section>
+
+    <!-- Account management dashboard -->
+    <section id="dashboard" hidden>
+      <div class="actions">
+        <div>
+          <p class="eyebrow" id="role-label">CLIENT ACCOUNT</p>
+          <h2 id="account-name"></h2>
+        </div>
+      </div>
+
+      <nav class="portal-navigation" aria-label="Portal pages">
+        <a class="button-link" href="portal.html">
+          Client portal
+        </a>
+
+        <a class="button-link" href="account-settings.html">
+          Account settings
+        </a>
+
+        <a
+          class="button-link"
+          id="management-link"
+          href="account-management.html"
+          hidden
+          aria-current="page"
+        >
+          Account management
+        </a>
+
+        <button id="logout">Sign out</button>
+      </nav>
+
+      <label id="client-label" hidden>
+        Account to manage
+        <select id="client-select"></select>
+      </label>
+
+      <p id="management-note" class="note"></p>
+
+      <!-- Staff-assisted recovery -->
+      <section class="card" id="staff-recovery" hidden>
+        <h2>Recover selected account</h2>
+
+        <p>
+          Verify the customer's identity before resetting their account.
+          Staff accounts require an administrator. You cannot reset your
+          own account here.
+        </p>
+
+        <form id="staff-reset-form">
+          <label>
+            Identity verification note
+            <textarea
+              id="verification-note"
+              minlength="10"
+              maxlength="500"
+              rows="3"
+              required
+              placeholder="Describe how you verified the account owner. Do not include passwords or recovery codes."
+            ></textarea>
+          </label>
+
+          <label>
+            <input
+              id="identity-confirmed"
+              type="checkbox"
+              required
+            >
+            I have verified this person's identity and intend to reset
+            the selected account.
+          </label>
+
+          <button>Issue temporary password</button>
+        </form>
+
+        <div id="staff-reset-result" hidden>
+          <p>
+            Share these credentials privately with the verified owner.
+            They are shown only for this reset. The previous recovery
+            code is invalid.
+          </p>
+
+          <label>
+            Temporary password
+            <input id="issued-password" readonly>
+          </label>
+
+          <label>
+            Recovery code
+            <input id="issued-code" readonly>
+          </label>
+
+          <p>
+            The customer must choose a new password. They will receive
+            a replacement recovery code after that change.
+          </p>
+
+          <button id="dismiss-credentials">
+            Credentials delivered — clear
+          </button>
+        </div>
+      </section>
+
+      <!-- Customer account deletion -->
+      <section class="card danger-zone" id="account-deletion" hidden>
+        <h2>Delete selected customer account</h2>
+
+        <p id="delete-target"></p>
+
+        <p>
+          This permanently deletes the customer's login, package details,
+          messages, and saved ledger entries. It cannot be undone through
+          the portal. Linked documents themselves are not deleted.
+        </p>
+
+        <form id="delete-form">
+          <label>
+            Type the customer's exact username
+            <input
+              id="delete-confirm"
+              autocomplete="off"
+              required
+            >
+          </label>
+
+          <label>
+            Your administrator password
+            <input
+              id="delete-password"
+              type="password"
+              autocomplete="current-password"
+              required
+            >
+          </label>
+
+          <label>
+            <input
+              id="delete-acknowledged"
+              type="checkbox"
+              required
+            >
+            I intend to permanently delete this customer account and
+            its portal records.
+          </label>
+
+          <button class="danger-button">
+            Permanently delete customer
+          </button>
+        </form>
+      </section>
+    </section>
+
+    <!-- Toast notifications -->
+    <div
+      id="copy-toast"
+      class="toast"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+
+    <noscript>This portal needs JavaScript enabled.</noscript>
+  </main>
+
+  <!-- Scripts -->
+  <script src="assets/vendor/supabase-2.57.4.js"></script>
+  <script src="assets/js/portal-config.js"></script>
+  <script src="assets/js/portal.js?v=logo-refresh-1"></script>
+</body>
+</html>
