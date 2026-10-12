@@ -2,8 +2,8 @@
  'use strict';
  var $ = function (id) { return document.getElementById(id); };
  var config = window.PORTAL_CONFIG;
- var mode = 'login', user = null, profile = null, staff = false, selected = null, version = 0;
- var names = {}, busy = false, links = {contract:'',documentation:''};
+ var mode = 'login', user = null, profile = null, staff = false, administrator = false, selected = null, version = 0;
+ var names = {}, usernames = {}, staffIds = [], busy = false, links = {contract:'',documentation:''};
  var client, toastTimer;
  function toast(text,info) {
   clearTimeout(toastTimer);
@@ -36,18 +36,20 @@
   finally {busy=false; buttons.forEach(function(button){button.disabled=false;});syncCopyButtons();}
  }
  function clearDashboard() {
+  hide('account-deletion',true);$('settings-username').value='';$('settings-business').value='';$('settings-password').value='';$('delete-confirm').value='';$('delete-password').value='';$('delete-acknowledged').checked=false;
   hide('password-change',true);hide('staff-recovery',true);hide('staff-reset-result',true);$('issued-password').value='';$('issued-code').value='';$('current-temporary').value='';$('permanent-password').value='';
-  version++; user=null; profile=null; selected=null; staff=false; names={};
+  version++; user=null; profile=null; selected=null; staff=false; administrator=false;names={};usernames={};staffIds=[];
   clearPackage();hide('service-editor',true);$('messages').textContent='';$('client-select').textContent='';
   $('account-name').textContent=''; $('message').value='';
   hide('dashboard',true); hide('account',false);
  }
  async function loadDashboard(session) {
-  clearDashboard();
+  var preferred=selected;clearDashboard();
   if(!session) return;
   user=session.user;
   var accountId=user.id;
   var security=check(await client.from('account_security').select('password_required,revoked_before,phase').eq('user_id',accountId).maybeSingle());
+  if(security && ['editing_profile','deleting'].includes(security.phase)) {hide('account',true);status('An account change is in progress. Contact an administrator if it does not finish.');return;}
   if(security && security.password_required) {
    hide('account',true);hide('password-change',false);
    status(security.phase==='awaiting_change'?'Change your temporary password to continue.':'Account recovery needs staff assistance. Ask staff to issue a new temporary password.');
@@ -57,9 +59,10 @@
    var claims=JSON.parse(atob(session.access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
    if(Number(claims.iat)<=Number(security.revoked_before)){check(await client.auth.signOut({scope:'local'}));clearDashboard();status('This session has been revoked. Sign in again.');return;}
   }
-  var results=await Promise.all([client.from('profiles').select('id,username,display_name').eq('id',accountId).single(),client.from('staff').select('user_id').eq('user_id',accountId)]);
-  profile=check(results[0]); staff=check(results[1]).length>0;
-  names[accountId]=profile.display_name;
+  var results=await Promise.all([client.from('profiles').select('id,username,display_name').eq('id',accountId).single(),client.from('staff').select('user_id'),client.from('administrators').select('user_id').eq('user_id',accountId)]);
+  profile=check(results[0]);staffIds=check(results[1]).map(function(item){return item.user_id;});staff=staffIds.includes(accountId);administrator=check(results[2]).some(function(item){return item.user_id===accountId;});
+  $('settings-username').value=profile.username;$('settings-business').value=profile.display_name;
+  names[accountId]=profile.display_name;usernames[accountId]=profile.username;
   $('account-name').textContent=profile.display_name;
   $('role-label').textContent=staff?'STAFF ACCOUNT':'CLIENT ACCOUNT';
   hide('client-label',!staff);hide('staff-recovery',!staff);hide('service-editor',!staff);
@@ -67,8 +70,8 @@
    // Paginate profiles so staff can reach every client, beyond the API's default row limit.
    var clients=[],offset=0,batch;
    do {batch=check(await client.from('profiles').select('id,username,display_name').order('username').range(offset,offset+499));clients=clients.concat(batch);offset+=500;} while(batch.length===500);
-   clients.forEach(function(item){names[item.id]=item.display_name;var option=document.createElement('option');option.value=item.id;option.textContent=item.display_name+' (@'+item.username+')';$('client-select').appendChild(option);});
-   selected=clients.length?clients[0].id:accountId;
+   clients.forEach(function(item){names[item.id]=item.display_name;usernames[item.id]=item.username;var option=document.createElement('option');option.value=item.id;option.textContent=item.display_name+' (@'+item.username+')';$('client-select').appendChild(option);});
+   selected=clients.some(function(item){return item.id===preferred;})?preferred:(clients.length?clients[0].id:accountId);$('client-select').value=selected;
   } else selected=accountId;
   hide('account',true);hide('dashboard',false);
   await refresh();
@@ -76,6 +79,9 @@
  async function refresh() {
   if(!user || !selected) return;
   var target=selected,requestVersion=++version;
+  hide('account-deletion',!(administrator && selected!==user.id && !staffIds.includes(selected)));
+  $('delete-target').textContent='Selected account: @'+(usernames[selected] || '');
+  $('delete-confirm').value='';$('delete-password').value='';$('delete-acknowledged').checked=false;
   clearPackage();$('package-name').textContent='Loading…';$('messages').textContent='';
   var results=await Promise.all([
    client.from('client_services').select('package_name,monthly_cost,contract_url,documentation_url').eq('client_id',target).maybeSingle(),
@@ -101,7 +107,7 @@
   var timer=controller?setTimeout(function(){controller.abort();},20000):null;
   try {
    var requestHeaders={'Content-Type':'application/json',apikey:config.supabasePublishableKey};
-   if(data.action==='staff-reset' || data.action==='change-temporary') {
+   if(['staff-reset','change-temporary','update-profile','delete-account'].includes(data.action)) {
     var currentSession=check(await client.auth.getSession()).session;
     if(!currentSession)throw new Error('Sign in again.');
     requestHeaders.Authorization='Bearer '+currentSession.access_token;
@@ -135,6 +141,24 @@
  $('client-select').onchange=function(){hide('staff-reset-result',true);$('issued-password').value='';$('issued-code').value='';$('verification-note').value='';$('identity-confirmed').checked=false;selected=this.value;status('');run(refresh);};
  $('refresh').onclick=function(){status('');run(refresh);};
  $('logout').onclick=function(){run(async function(){check(await client.auth.signOut({scope:'local'}));clearDashboard();status('Signed out.');});};
+ $('profile-form').onsubmit=function(event){event.preventDefault();run(async function(){
+  var username=$('settings-username').value.trim().toLowerCase();
+  var result=await accountAction({action:'update-profile',username:username,displayName:$('settings-business').value.trim(),currentPassword:$('settings-password').value});
+  $('settings-password').value='';
+  if(result.usernameChanged){
+   await client.auth.signOut({scope:'local'});clearDashboard();$('username').value=result.username;
+   $('recovery-output').value=result.recoveryCode;hide('account',true);hide('recovery-result',false);
+   status('Username updated. Save your new recovery code, then sign in with your new username and existing password.');
+  }else{var session=check(await client.auth.getSession()).session;await loadDashboard(session);status('Business name updated.');toast('Business name updated.');}
+ });};
+ $('delete-form').onsubmit=function(event){event.preventDefault();run(async function(){
+  if(!administrator || !selected || selected===user.id || staffIds.includes(selected))throw new Error('Select a customer account. Staff accounts are protected.');
+  if(!$('delete-acknowledged').checked || $('delete-confirm').value!==usernames[selected])throw new Error('Confirm deletion and type the exact selected customer username.');
+  var result=await accountAction({action:'delete-account',targetId:selected,confirmUsername:$('delete-confirm').value,currentPassword:$('delete-password').value});
+  $('delete-password').value='';selected=null;
+  var session=check(await client.auth.getSession()).session;await loadDashboard(session);
+  status(result.auditWarning?'Customer deleted. The audit completion could not be recorded; check Supabase before proceeding.':'Customer account and portal records deleted.');toast('Customer account deleted.');
+ });};
  $('staff-reset-form').onsubmit=function(event){event.preventDefault();run(async function(){
   if(!staff || !selected || selected===user.id)throw new Error('Select another customer. You cannot reset your own account here.');
   if(!$('identity-confirmed').checked)throw new Error('Verify the account owner first.');
