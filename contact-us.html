@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quill & Ink Services</title>
+
+  <!-- 
+    - favicon
+  -->
+  <link rel="shortcut icon" href="assets/images/Favicon-3.png" type="image/png">
+
+  <!-- 
+    - custom css link
+  -->
+  <link rel="stylesheet" href="./assets/css/style.css?v=5">
+
+  <!-- 
+    - google font link
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Source+Sans+Pro:wght@600;700&display=swap"
+    rel="stylesheet">
+</head>
+
+<body id="top">
+
+  <!-- 
+    - #HEADER
+  -->
+
+  <header class="header" data-header>
+    <div class="container">
+
+      <div class="overlay" data-overlay></div>
+
+      <a href="" onclick="location.reload(); return false;" class="logo-link">
+        <img src="assets/images/QUILL_INK_MINI_WHITE.png"
+        alt="Quill & Ink" class="logo-img logo-light">
+      </a>
+
+      <nav class="navbar" data-navbar>
+
+        <div class="navbar-top">
+          <a href="#" class="logo">Quill & Ink</a>
+
+          <button class="nav-close-btn" aria-label="Close Menu" data-nav-close-btn>
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </div>
+
+        <ul class="navbar-list">
+
+          <li class="navbar-item">
+            <a href="index.html" class="navbar-link" data-navbar-link>Home</a>
+          </li>
+
+          <li class="navbar-item">
+            <a href="testimonials.html" class="navbar-link">Testimonials</a>
+          </li>
+
+        </ul>
+
+      </nav>
+
+      <button class="alert-btn" id="alertBtn" aria-label="Open alerts">
+        <ion-icon name="notifications-outline"></ion-icon>
+        <span class="alert-badge" id="alertBadge"></span>
+      </button>
+      
+      <button class="nav-open-btn" aria-label="Open Menu" data-nav-open-btn>
+        <ion-icon name="menu-outline"></ion-icon>
+      </button>
+
+    </div>
+  </header>
+
+
+
+
+
+  <main>
+    <article>
+
+      <!-- 
+        - #HERO
+      -->
+
+      <section class="hero" id="home">
+  <div class="container">
+
+    <div class="hero-content">
+      <p class="hero-subtitle">Here to help</p>
+
+      <h1 class="hero-title">
+        Contact Us
+      </h1>
+
+      <p class="hero-text">
+        We pride ourselves on delivering reliable ledger management, audit preparation, and bookkeeping solutions. Contact us below for a meeting or consultation.
+      </p>
+    </div>
+
+    <figure class="hero-banner">
+      <img src="./assets/images/Customer_Service.svg"  width="694" height="529" loading="lazy" alt="hero-banner"
+           class="w-100 banner-animation"
+           alt="Happy clients">
+    </figure>
+
+  </div>
+</section>
+
+
+<section id="contact" class="contact section">
+  <div class="container">
+
+    <h2 class="section-title underline">Contact Us</h2>
+
+    <div class="contact-grid">
+
+      <!-- Charlee -->
+      <div class="contact-card">
+        <img src="assets/images/Charlee_Henderson_Profile_Pic.png"
+             alt="Charlee Henderson"
+             class="profile-pic">
+
+        <h3 class="contact-name">Charlee Henderson</h3>
+        <p class="contact-role">Owner</p>
+
+        <span class="phone"
+              onclick="copyNumber('8356439887')">
+          (835) 643-9887
+        </span>
+
+        <button
+          class="duties-btn"
+          type="button"
+          onclick="toggleDuties('charlee-duties', this)">
+          Services
+        </button>
+
+        <div id="charlee-duties" class="duties" hidden>
+          <h4>Services</h4>
+          <ul>
+            <li>Ledger Retainers</li>
+            <li>Ledger Creation</li>
+            <li>Ledger Editing</li>
+            <li>Audit Preparation</li>
+            <li>Client Support</li>
+          </ul>
+        </div>
+      </div>
+
+
+      <!-- Sofie -->
+      <div class="contact-card">
+        <img src="assets/images/Employee_Profile_Pic.png"
+             alt="Sofie Martinez"
+             class="profile-pic">
+
+        <h3 class="contact-name">Sofie Martinez</h3>
+        <p class="contact-role">Accountant</p>
+
+        <span class="phone"
+              onclick="copyNumber('8321834309')">
+          (832) 183-4309
+        </span>
+
+        <button
+          class="duties-btn"
+          type="button"
+          onclick="toggleDuties('sofie-duties', this)">
+          Services
+        </button>
+
+        <div id="sofie-duties" class="duties" hidden>
+          <h4>Services</h4>
+          <ul>
+            <li>Ledger Retainers</li>
+            <li>Ledger Creation</li>
+            <li>Ledger Editing</li>
+            <li>Ledger Design</li>
+            <li>Client Support</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="contact-card">
+        <h3 class="contact-name">Office Address</h3>
+        <p class="contact-role">1054A Hawick Avenue,<br>
+        Vinewood, Los Santos</p>
+
+        <button
+          type="button"
+          class="map-expand-btn"
+          onclick="openMap()">
+          Show Map
+        </button>
+      </div>
+
+      <!-- Email Chain -->
+      <div class="contact-card">
+        <h3 class="contact-name">Email Chain</h3>
+        <p class="contact-role">Join our email chain</p>
+
+        <span class="phone"
+              onclick="copyNumber('https://discord.gg/S4rkSg86hX')">
+          Copy Link
+        </span>
+      </div>
+
+ <!-- Application Form -->
+    <!-- <div class="contact-card">
+        <h3 class="contact-name">Application Form</h3>
+        <p class="contact-role">Join our team</p>
+
+        <span class="phone"
+              onclick="copyNumber('https://forms.gle/pDzFazoo2Xqp1jNM8')">
+          Copy Link
+        </span>
+      </div> -->
+      
+    </div>
+  </div>
+</section> 
+      
+<br>
+      
+
+  </article>
+</main>
+
+<br>
+  <!-- 
+    - #FOOTER
+  -->
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div class="container">
+        
+        
+        <p class="copyright">
+          &copy; 2026 <a href="#" class="copyright-link">Quill & Ink Services</a>.
+          All Right Reserved
+        </p>
+      </div>
+  </footer>
+
+
+<div class="alert-popup" id="alertPopup">
+
+  <div class="alert-popup-header">
+    <h3>Notifications & Deadlines</h3>
+  </div>
+
+  <div class="alert-list" id="alertList"></div>
+
+</div>
+
+
+  <!-- 
+    - #GO TO TOP
+  -->
+
+  <a href="#top" class="go-top  active" aria-label="Go To Top" data-go-top>
+    <ion-icon name="arrow-up-outline"></ion-icon>
+  </a>
+
+
+<div class="map-overlay" id="mapOverlay">
+
+  <button
+    type="button"
+    class="map-close-btn"
+    onclick="closeMap()"
+    aria-label="Close map">
+    <ion-icon name="close-outline"></ion-icon>
+  </button>
+
+  <img
+    src="assets/images/New_Map_Location.png"
+    alt="Map"
+    class="map-overlay-image">
+
+</div>
+
+
+  <!-- 
+    - custom js link
+  -->
+  <script src="./assets/js/script.js?v=7"></script>
+  <script src="./assets/js/alerts.js?v=6"></script>
+
+  <!-- 
+    - ionicon link
+  -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast"></div>
+
+</body>
+
+</html>
