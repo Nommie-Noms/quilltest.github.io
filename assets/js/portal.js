@@ -4,7 +4,13 @@
  var config = window.PORTAL_CONFIG;
  var mode = 'login', user = null, profile = null, staff = false, selected = null, version = 0;
  var names = {}, busy = false, links = {contract:'',documentation:''};
- var client;
+ var client, toastTimer;
+ function toast(text,info) {
+  clearTimeout(toastTimer);
+  $('copy-toast').textContent=text;
+  $('copy-toast').className='toast visible'+(info?' info':'');
+  toastTimer=setTimeout(function(){$('copy-toast').className='toast';$('copy-toast').textContent='';},info?6000:4000);
+ }
  function status(text) { $('status').textContent = text || ''; }
  function hide(id, hidden) { $(id).hidden = hidden; }
  function money(value) { return '$' + Number(value).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
@@ -148,10 +154,10 @@
  async function copyLink(kind) {
   var value=links[kind];if(!value)return;
   hide('manual-copy-label',true);
-  try {if(!navigator.clipboard || !navigator.clipboard.writeText)throw new Error('Clipboard unavailable');await navigator.clipboard.writeText(value);status('Link copied.');return;}catch(error){}
+  try {if(!navigator.clipboard || !navigator.clipboard.writeText)throw new Error('Clipboard unavailable');await navigator.clipboard.writeText(value);status('');toast(kind==='contract'?'Contract link copied.':'Documentation link copied.');return;}catch(error){}
   $('manual-copy').value=value;hide('manual-copy-label',false);$('manual-copy').focus();$('manual-copy').select();
-  try {if(document.execCommand('copy')){hide('manual-copy-label',true);status('Link copied.');return;}}catch(error){}
-  status('Automatic copying is unavailable in this browser. Copy the selected link manually.');
+  try {if(document.execCommand('copy')){hide('manual-copy-label',true);status('');toast(kind==='contract'?'Contract link copied.':'Documentation link copied.');return;}}catch(error){}
+  status('Automatic copying is unavailable in this browser. Copy the selected link manually.');toast('Copy the selected link manually.',true);
  }
  $('copy-contract').onclick=function(){copyLink('contract');};
  $('copy-documentation').onclick=function(){copyLink('documentation');};
